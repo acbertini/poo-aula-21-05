@@ -28,7 +28,7 @@
                 <tbody>
                     <%  ArrayList<Customer> list = null;
                         try {
-                            list = SampleConnector.getBestCustomers();
+                            list = SampleConnector.getCustomersOrderBy("CREDIT_LIMIT");
                             for (int i = 0; i < 5; i++) {
                                 Customer c = list.get(i);
                     %>

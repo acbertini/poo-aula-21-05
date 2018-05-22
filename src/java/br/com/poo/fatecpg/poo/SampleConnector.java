@@ -8,39 +8,58 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SampleConnector {
-    
-    public static ArrayList<Customer> getCustomers() throws ClassNotFoundException, SQLException{
-        ArrayList<Customer> list = new ArrayList<>();
+
+    // Conecta ao banco de dados e retorna a conexão
+    private static Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("org.apache.derby.jdbc.ClientDriver");
         String url = "jdbc:derby://localhost:1527/sample";
         String user = "app";
         String pass = "app";
         Connection con = DriverManager.getConnection(url, user, pass);
-        //Já está conectado ao banco
-        Statement stst = con.createStatement();
-        ResultSet rs = stst.executeQuery("SELECT * FROM CUSTOMER");
-        //Varre todos os registros
-        while(rs.next()){
-            Customer c = new Customer(rs.getString("CUSTOMER_ID"), rs.getString("NAME"), rs.getDouble("CREDIT_LIMIT"));
-            list.add(c);
+        return con;
+    }
+
+    // Obtém a relação de todos os customers
+    public static ArrayList<Customer> getCustomers() throws ClassNotFoundException, SQLException {
+        ArrayList<Customer> list = new ArrayList<>();
+        try (Connection con = getConnection()) {
+            Statement stst = con.createStatement();
+            ResultSet rs = stst.executeQuery("SELECT * FROM CUSTOMER");
+            //Varre todos os registros
+            while (rs.next()) {
+                Customer c = new Customer(rs.getString("CUSTOMER_ID"), rs.getString("NAME"), rs.getDouble("CREDIT_LIMIT"));
+                list.add(c);
+            }
         }
         return list;
     }
-    
-        public static ArrayList<Customer> getBestCustomers() throws ClassNotFoundException, SQLException{
+
+    // Obtém a relação dos melhores clientes em limite de crédito
+    public static ArrayList<Customer> getBestCustomers() throws ClassNotFoundException, SQLException {
         ArrayList<Customer> list = new ArrayList<>();
-        Class.forName("org.apache.derby.jdbc.ClientDriver");
-        String url = "jdbc:derby://localhost:1527/sample";
-        String user = "app";
-        String pass = "app";
-        Connection con = DriverManager.getConnection(url, user, pass);
-        //Já está conectado ao banco
-        Statement stst = con.createStatement();
-        ResultSet rs = stst.executeQuery("SELECT * FROM CUSTOMER ORDER BY CREDIT_LIMIT DESC");
-        //Varre todos os registros
-        while(rs.next()){
-            Customer c = new Customer(rs.getString("CUSTOMER_ID"), rs.getString("NAME"), rs.getDouble("CREDIT_LIMIT"));
-            list.add(c);
+        try (Connection con = getConnection()) {
+            Statement stst = con.createStatement();
+            ResultSet rs = stst.executeQuery("SELECT * FROM CUSTOMER ORDER BY CREDIT_LIMIT DESC");
+            //Varre todos os registros
+            while (rs.next()) {
+                Customer c = new Customer(rs.getString("CUSTOMER_ID"), rs.getString("NAME"), rs.getDouble("CREDIT_LIMIT"));
+                list.add(c);
+            }
+        }
+        return list;
+    }
+
+    // Obtém a relação dos clientes pelo campo desejado
+    public static ArrayList<Customer> getCustomersOrderBy(String field) throws ClassNotFoundException, SQLException {
+        ArrayList<Customer> list = new ArrayList<>();
+        try (Connection con = getConnection()) {
+            Statement stst = con.createStatement();
+            ResultSet rs = stst.executeQuery("SELECT * FROM CUSTOMER ORDER BY " + field + " DESC");
+            //Varre todos os registros
+            while (rs.next()) {
+                Customer c = new Customer(rs.getString("CUSTOMER_ID"), rs.getString("NAME"), rs.getDouble("CREDIT_LIMIT"));
+                list.add(c);
+            }
         }
         return list;
     }
